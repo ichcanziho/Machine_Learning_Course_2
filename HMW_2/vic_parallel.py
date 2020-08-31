@@ -2,12 +2,7 @@ from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import StratifiedKFold
 from joblib import Parallel, delayed
 import pandas as pd
-from sklearn.svm import SVC
 import time
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.naive_bayes import GaussianNB
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-from sklearn.neural_network import MLPClassifier
 import random
 
 
@@ -113,7 +108,7 @@ class makePartitions():
         return cuts
 
 
-def main(partition, numberOfPartitions, numberOfClasses, min_cut, max_cut,prefix=[]):
+def runVic(partition, numberOfPartitions, numberOfClasses, min_cut, max_cut,classifiers,numberOfKfolds,numberOfCPUS,prefix=[]):
     cuts = prefix
     cuts += partition.makeCuts(n_cuts=numberOfPartitions, n_classes=numberOfClasses, min_cut=min_cut, max_cut=max_cut)
 
@@ -140,21 +135,7 @@ def main(partition, numberOfPartitions, numberOfClasses, min_cut, max_cut,prefix
         iteration += 1
 
     history_df = pd.DataFrame(history, columns=['AUC', 'Classifier','Distribution'])
-    history_df.to_csv('dataOutput/history.csv')
+    history_df.to_csv('dataOutput/history.csv',index=False)
     print(history_df)
 
 
-numberOfPartitions = 1
-numberOfClasses = 2
-min_cut = 500
-max_cut = 4000
-numberOfKfolds = 3
-numberOfCPUS = 5
-prefix = [[2636]]
-classifiers = [RandomForestClassifier(max_features='sqrt', criterion='entropy', n_jobs=2),
-               SVC(gamma='auto'), GaussianNB(), LinearDiscriminantAnalysis(), MLPClassifier()]
-
-if __name__ == '__main__':
-    partition = makePartitions('Data_15s_30r.csv', 'score_change')
-    partition.cleanData(['fingerprint', 'minutia'])
-    main(partition, numberOfPartitions, numberOfClasses, min_cut, max_cut,prefix=prefix)

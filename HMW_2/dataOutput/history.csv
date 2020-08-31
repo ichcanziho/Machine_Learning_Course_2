@@ -1,3 +1,2 @@
-,AUC,Classifier,Distribution
-0,0.6167647735482982,RandomForestClassifier,"[2636, 5241]"
-1,0.6031154562203666,RandomForestClassifier,"[2764, 5241]"
+AUC,Classifier,Distribution
+0.5978910553796918,RandomForestClassifier,"[2147, 5241]"
