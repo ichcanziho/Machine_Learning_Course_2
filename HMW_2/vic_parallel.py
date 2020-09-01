@@ -11,6 +11,10 @@ class VIC:
     def __init__(self, classifiers):
         self.classifiers = classifiers
 
+    # calculates the roc auc score for multiple classes
+    # evaluates one and converts the others into one single category
+    # for 3 classes, when roc's calculate for the firist class
+    # turns 2nd a 3rd class into only one class
     def roc_auc_score_multiclass(self, y_true, y_pred, average="macro"):
         classes = set(y_true)
         roc_auc_dict = {}
@@ -23,6 +27,7 @@ class VIC:
         avg = sum(roc_auc_dict.values()) / len(roc_auc_dict)
         return avg
 
+    # train the model with StratifiedKFold, then predict the outputs and gets ROC's score
     def train(self, train_index, test_index, model, X, Y):
         X_train, X_test = X[train_index], X[test_index]
         y_train, y_test = Y[train_index], Y[test_index]
@@ -31,6 +36,8 @@ class VIC:
         aucV = self.roc_auc_score_multiclass(y_test, Y_predict)
         return aucV
 
+    # for each classifier selected, train the model using kfolds, returns his roc's score
+    # and save the best roc of the best classifier
     def vic(self, data, kFolds=5, CPUS=5):
 
         X = data.iloc[:, :-1].values
@@ -53,7 +60,6 @@ class VIC:
         print("Current result:", best)
         return best
 
-
 class makePartitions():
 
     def __init__(self, data, y):
@@ -62,9 +68,38 @@ class makePartitions():
         self.realOutput = self.data[y].tolist()
         self.y_label = y
 
+    # remove certain columns of the dataFrame
     def cleanData(self, cols):
         self.data.drop(cols, axis=1, inplace=True)
 
+    # update the current dataFrame with the new categorical Outputs
+    def updateData(self, new_y):
+        self.data.drop([self.y_label], axis=1, inplace=True)
+        self.data[self.y_label] = new_y
+
+    # make a list of random numbers that can split the current dataFrame
+    # it sorts the numbers to ensure not overlapping classifications
+    def makeCuts(self, n_cuts, n_classes, min_cut=500, max_cut=4000):
+        n_classes = n_classes - 1
+        cuts = []
+        i = 0
+        while True:
+            cut = []
+            for n in range(n_classes):
+                r = random.randint(min_cut, max_cut)
+                if r in cut:
+                    r+=min_cut
+                cut.append(r)
+
+            cut.sort()
+            if cut not in cuts:
+                cuts.append(cut)
+                i += 1
+            if i == n_cuts:
+                break
+        return cuts
+
+    # convert the cuts into dataFrame's categorical Outputs
     def mapOutputs(self, cuts):
 
         y = self.realOutput
@@ -86,37 +121,20 @@ class makePartitions():
         self.updateData(outpus)
         return self.data
 
-    def updateData(self, new_y):
-        self.data.drop([self.y_label], axis=1, inplace=True)
-        self.data[self.y_label] = new_y
-
-    def makeCuts(self, n_cuts, n_classes, min_cut=500, max_cut=4000):
-        n_classes = n_classes - 1
-        cuts = []
-        i = 0
-        while True:
-            cut = []
-            for n in range(n_classes):
-                r = random.randint(min_cut, max_cut)
-                cut.append(r)
-            cut.sort()
-            if cut not in cuts:
-                cuts.append(cut)
-                i += 1
-            if i == n_cuts:
-                break
-        return cuts
-
-
-def runVic(partition, numberOfPartitions, numberOfClasses, min_cut, max_cut,classifiers,numberOfKfolds,numberOfCPUS,prefix=[]):
+# run the vic's implementation using make partitions' and vic's classes
+def runVic(partition, numberOfPartitions, numberOfClasses, min_cut, max_cut,classifiers,numberOfKfolds,numberOfCPUS,OutputHistory,prefix=[]):
     cuts = prefix
+    # make the number of partitions and their cuts
     cuts += partition.makeCuts(n_cuts=numberOfPartitions, n_classes=numberOfClasses, min_cut=min_cut, max_cut=max_cut)
-
     print(cuts)
     iteration = 1
     # 2103 [2081], [2780] 2636 CHIDO
     best = [0, "free"]
     history = []
+    # for each partition
+    # make an output, entrain all the classifiers with cross validation
+    # save the best output and update the history of outputs
+    # finally save the best partition and the history of outputs
     for cut in cuts:
         print('####################################################')
         print("####### Partition {} iteration {}/{}  ############".format(cut, iteration, len(cuts)))
@@ -135,7 +153,7 @@ def runVic(partition, numberOfPartitions, numberOfClasses, min_cut, max_cut,clas
         iteration += 1
 
     history_df = pd.DataFrame(history, columns=['AUC', 'Classifier','Distribution'])
-    history_df.to_csv('dataOutput/history.csv',index=False)
+    history_df.to_csv('dataOutput/'+OutputHistory+'.csv',index=False)
     print(history_df)
 
 

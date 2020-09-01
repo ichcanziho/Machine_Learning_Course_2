@@ -1,2 +1,12 @@
 AUC,Classifier,Distribution
-0.5978910553796918,RandomForestClassifier,"[2147, 5241]"
+0.614603590799015,RandomForestClassifier,"[2636, 5241]"
+0.5287862806093961,RandomForestClassifier,"[3987, 5241]"
+0.5412437371531347,RandomForestClassifier,"[1398, 5241]"
+0.510671611262024,RandomForestClassifier,"[843, 5241]"
+0.6089297170001176,RandomForestClassifier,"[2181, 5241]"
+0.6019975659576378,RandomForestClassifier,"[2897, 5241]"
+0.5945915223273247,RandomForestClassifier,"[3015, 5241]"
+0.614377493259026,RandomForestClassifier,"[2512, 5241]"
+0.5787926994124437,RandomForestClassifier,"[1806, 5241]"
+0.5037353994439064,RandomForestClassifier,"[603, 5241]"
+0.5302841278375525,RandomForestClassifier,"[4031, 5241]"
