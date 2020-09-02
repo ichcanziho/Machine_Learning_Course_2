@@ -2,14 +2,22 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-data = pd.read_csv('dataOutput/history50c3.csv')
-numberOfpartitions = 10
-numberOfClusters = 3
-outputName_1 = 'bestRoc50c3'
-outputName_2 = 'bestDistribution50c3'
+# name of the history that you want to plot
+inputHistory = 'Test'
+# True if you want to save the images as PDF
+savePDF = False
+# number of partitions that you want to see in the distribution graph, it plots only the best numberOfpartitions
+numberOfpartitions = 3
+# number of clusters presents in the data, acepts 2 or 3
+numberOfClusters = 2
+# the name for the auc graph
+outputName_1 = 'TestAuc'
+#the name of the distirbution graph
+outputName_2 = 'TestDistribution'
 
+data = pd.read_csv('dataOutput/history/{}.csv'.format(inputHistory))
 
-def graphAUCiteration():
+def graphAUCiteration(savePdf=False):
     labels = list(range(1,len(data)+1))
     aucs = list(data['AUC'])
     aucs = [round(auc,3) for auc in aucs]
@@ -45,11 +53,12 @@ def graphAUCiteration():
     autolabel([rects1[bestPos],rects1[worstPos]])
     fig.tight_layout()
     plt.savefig('dataOutput/images/{}.png'.format(outputName_1))
-    plt.savefig('dataOutput/images/{}.pdf'.format(outputName_1))
+    if savePdf:
+        plt.savefig('dataOutput/images/{}.pdf'.format(outputName_1))
 
     plt.show()
 
-def graph2columns():
+def graph2columns(savePdf=False):
     data.sort_values(by=['AUC'],inplace=True, ascending=False)
     bestAucs = list(data['AUC'])[:numberOfpartitions]
     dist = list(data['Distribution'])[:numberOfpartitions]
@@ -88,10 +97,11 @@ def graph2columns():
     ax.legend()
     fig.tight_layout()
     plt.savefig('dataOutput/images/{}.png'.format(outputName_2))
-    plt.savefig('dataOutput/images/{}.pdf'.format(outputName_2))
+    if savePdf:
+        plt.savefig('dataOutput/images/{}.pdf'.format(outputName_2))
     plt.show()
 
-def graph3columns():
+def graph3columns(savePdf=False):
     data.sort_values(by=['AUC'],inplace=True, ascending=False)
     bestAucs = list(data['AUC'])[:numberOfpartitions]
     dist = list(data['Distribution'])[:numberOfpartitions]
@@ -135,12 +145,13 @@ def graph3columns():
     ax.legend()
     fig.tight_layout()
     plt.savefig('dataOutput/images/{}.png'.format(outputName_2))
-    plt.savefig('dataOutput/images/{}.pdf'.format(outputName_2))
+    if savePdf:
+        plt.savefig('dataOutput/images/{}.pdf'.format(outputName_2))
     plt.show()
 
-graphAUCiteration()
+graphAUCiteration(savePdf=savePDF)
 
 if numberOfClusters == 2:
-    graph2columns()
+    graph2columns(savePdf=savePDF)
 else:
-    graph3columns()
+    graph3columns(savePdf=savePDF)

@@ -55,10 +55,12 @@ class VIC:
             aucAverage = sum(out) / len(out)
             results.append([aucAverage, name])
             print("model {}, auc average {} time running {}".format(name, aucAverage, elapse))
+        allResults = results.copy()
         results.sort(reverse=True)
         best = results[0]
+        print("--------------------------------------")
         print("Current result:", best)
-        return best
+        return best,allResults
 
 class makePartitions():
 
@@ -122,7 +124,9 @@ class makePartitions():
         return self.data
 
 # run the vic's implementation using make partitions' and vic's classes
-def runVic(partition, numberOfPartitions, numberOfClasses, min_cut, max_cut,classifiers,numberOfKfolds,numberOfCPUS,OutputHistory,prefix=[]):
+def runVic(partition, numberOfPartitions, numberOfClasses, min_cut,
+           max_cut,classifiers,numberOfKfolds,numberOfCPUS,
+           OutputHistory,nameOutput,prefix=[]):
     cuts = prefix
     # make the number of partitions and their cuts
     cuts += partition.makeCuts(n_cuts=numberOfPartitions, n_classes=numberOfClasses, min_cut=min_cut, max_cut=max_cut)
@@ -130,30 +134,36 @@ def runVic(partition, numberOfPartitions, numberOfClasses, min_cut, max_cut,clas
     iteration = 1
     # 2103 [2081], [2780] 2636 CHIDO
     best = [0, "free"]
-    history = []
+    header = ['AUC', 'Classifier', 'Distribution']
+    header += [model.__class__.__name__ for model in classifiers]
+    fullHistory = []
     # for each partition
     # make an output, entrain all the classifiers with cross validation
     # save the best output and update the history of outputs
     # finally save the best partition and the history of outputs
     for cut in cuts:
+        startPartition = time.time()
         print('####################################################')
         print("####### Partition {} iteration {}/{}  ############".format(cut, iteration, len(cuts)))
         print('####################################################')
         newData = partition.mapOutputs(cut)
         model = VIC(classifiers)
-        current = model.vic(newData, kFolds=numberOfKfolds, CPUS=numberOfCPUS)
+        current,results = model.vic(newData, kFolds=numberOfKfolds, CPUS=numberOfCPUS)
+        aucs = [auc[0] for auc in results]
         if current[0] > best[0]:
             best = current
-            newData.to_csv('dataOutput/bestPartition.csv', index=False)
-        print("------------------")
+            newData.to_csv('dataOutput/partitions/{}.csv'.format(nameOutput), index=False)
+        endPartition = time.time()
+        print("Time running this partition:",endPartition-startPartition)
+        print("--------------------------------------")
         print("Best overall:", best)
-        print("------------------")
-        out = current+[cut]
-        history.append(out)
+        print("--------------------------------------")
+        fullOut = current+[cut]+aucs
+        fullHistory.append(fullOut)
         iteration += 1
 
-    history_df = pd.DataFrame(history, columns=['AUC', 'Classifier','Distribution'])
-    history_df.to_csv('dataOutput/'+OutputHistory+'.csv',index=False)
+    history_df = pd.DataFrame(fullHistory, columns=header)
+    history_df.to_csv('dataOutput/history/'+OutputHistory+'.csv',index=False)
     print(history_df)
 
 
