@@ -3,17 +3,17 @@ import numpy as np
 import pandas as pd
 
 # name of the history that you want to plot
-inputHistory = 'Test'
+inputHistory = '3c50i'
 # True if you want to save the images as PDF
 savePDF = False
 # number of partitions that you want to see in the distribution graph, it plots only the best numberOfpartitions
-numberOfpartitions = 3
+numberOfpartitions = 10
 # number of clusters presents in the data, acepts 2 or 3
-numberOfClusters = 2
+numberOfClusters = 3
 # the name for the auc graph
-outputName_1 = 'TestAuc'
+outputName_1 = 'Auc3c50i'
 #the name of the distirbution graph
-outputName_2 = 'TestDistribution'
+outputName_2 = 'Distribution3c50i'
 
 data = pd.read_csv('dataOutput/history/{}.csv'.format(inputHistory))
 
