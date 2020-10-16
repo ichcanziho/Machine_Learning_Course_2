@@ -1,0 +1,2 @@
+AUC,Classifier,Distribution,RandomForestClassifier,SVC,GaussianNB,LinearDiscriminantAnalysis,MLPClassifier,DecisionTreeClassifier,LogisticRegression,AdaBoostClassifier
+0.5724407953130297,RandomForestClassifier,"[1731, 5241]",0.5724407953130297,0.5,0.5576366990409247,0.5658212788768898,0.4994466676547601,0.543874601284408,0.5072697699616177,0.5621743905479205
