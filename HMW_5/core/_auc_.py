@@ -2,6 +2,7 @@ import pandas as pd
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.metrics import roc_auc_score
+from sklearn.metrics import average_precision_score
 
 # Function importing Dataset
 def importdata(trainFile, testFile):
@@ -83,7 +84,9 @@ def getAUC(model,model_name,trainFile,testFile,scaler,other_models):
         model.fit(X_train, y_train)
     y_pred = prediction(X_test,model, model_name,other_models)
     auc = roc_auc_score(y_test, y_pred)
-    return auc
+    ave = average_precision_score(y_test,y_pred,pos_label='positive')
+
+    return auc,ave
 
 def getOrderFolders():
     folders = pd.read_csv("core/order.csv")
@@ -91,16 +94,25 @@ def getOrderFolders():
     return folders
 
 def saveResults(results,start_counts,counts,name="results.csv"):
+
+    AUCS = []
+    AVES = []
+    for result in results:
+        AUCS.append(result[0])
+        AVES.append(result[1])
+
+
     head = ['model']
     folders = getOrderFolders()
     if counts != -1:
         folders = folders[start_counts:start_counts+counts]
     folders.reverse()
     head += folders
-
     head += ["Average"]
-    dataOutput = pd.DataFrame(results, columns=head)
-    dataOutput.to_csv(name, index=False)
+    dataOutput = pd.DataFrame(AUCS, columns=head)
+    dataOutput.to_csv(name+"_AUC.csv", index=False)
+    dataOutput = pd.DataFrame(AVES, columns=head)
+    dataOutput.to_csv(name+"_AVE.csv", index=False)
 
 
 
