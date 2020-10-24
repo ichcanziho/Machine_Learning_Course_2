@@ -24,6 +24,7 @@ from pyod.models.so_gaal import SO_GAAL
 from pyod.models.mo_gaal import MO_GAAL
 from pyod.models.vae import VAE
 from pyod.models.auto_encoder import AutoEncoder
+from core.OCKRA.m_ockra import m_OCKRA
 
 import time
 from joblib import Parallel, delayed
@@ -74,7 +75,7 @@ def runByScaler(root,scaler,models,start,counts,other_models,CPUS):
     saveResults(results, start, counts, name=f'results/{name}_{scaler}_scaler_{start}_{start + counts}')
 
 scalers = ['no','std','minmax']
-name = "Test_Models"
+name = "Ockra"
 root = 'Unsupervised_Anamaly_Detection_csv'
 start=0
 counts=90
@@ -115,6 +116,8 @@ models = {'BRM':BRM(),
           #'MoGaal':MO_GAAL(),
           'VAE':VAE(encoder_neurons=[8,4,2]),
           'AutoEncoder':AutoEncoder(hidden_neurons=[6,3,3,6])}
+
+models = {'OCKRA':m_OCKRA()}
 
 Parallel(n_jobs=CPUS) \
         (delayed(runByScaler)

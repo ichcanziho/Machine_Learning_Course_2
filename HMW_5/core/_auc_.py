@@ -93,7 +93,7 @@ def getAUC(model,model_name,trainFile,testFile,scaler,other_models):
     return auc,ave
 
 def getOrderFolders():
-    folders = pd.read_csv("core/order.csv")
+    folders = pd.read_csv("core/orderComplete.csv")
     folders = list(folders.folder)
     return folders
 
