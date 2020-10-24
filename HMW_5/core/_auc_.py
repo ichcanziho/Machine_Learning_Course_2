@@ -78,6 +78,10 @@ def prediction(X_test, model, model_name, other_models):
 def getAUC(model,model_name,trainFile,testFile,scaler,other_models):
     train, test = importdata(trainFile, testFile)
     X_train, X_test, y_train, y_test= splitdataset(train, test, scaler)
+
+    X_train = X_train.values
+    X_test = X_test.values
+
     if model_name in other_models:
         model.fit(X_train)
     else:
