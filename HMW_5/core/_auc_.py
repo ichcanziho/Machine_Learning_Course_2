@@ -68,7 +68,7 @@ def splitdataset(train, test,scaler='no'):
 
 # Function to make predictions
 def prediction(X_test, model, model_name, other_models):
-    if model_name in other_models:
+    if model_name in other_models or model_name == 'XGBOD':
         y_pred = model.decision_function(X_test)
     else:
         y_pred = model.score_samples(X_test)
@@ -77,13 +77,17 @@ def prediction(X_test, model, model_name, other_models):
 
 def getAUC(model,model_name,trainFile,testFile,scaler,other_models):
     train, test = importdata(trainFile, testFile)
-    X_train, X_test, y_train, y_test= splitdataset(train, test, scaler)
+    X_train, X_test, y_train_len, y_test= splitdataset(train, test, scaler)
+
+    y_train = ['negative' for i in range(len(y_train_len))]
 
     X_train = X_train.values
     X_test = X_test.values
 
     if model_name in other_models:
         model.fit(X_train)
+    elif model_name == 'XGBOD':
+        model.fit(X_train, y_train)
     else:
         model.fit(X_train, y_train)
     y_pred = prediction(X_test,model, model_name,other_models)

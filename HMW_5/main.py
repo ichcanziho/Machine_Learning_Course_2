@@ -4,6 +4,10 @@ from sklearn.mixture import GaussianMixture
 from sklearn.ensemble import IsolationForest
 from sklearn.svm import OneClassSVM
 from sklearn.covariance import EllipticEnvelope
+from sklearn.decomposition import FactorAnalysis
+from sklearn.neighbors import KernelDensity
+from core.OCKRA.m_ockra import m_OCKRA
+
 from pyod.models.knn import KNN
 from pyod.models.pca import PCA
 from pyod.models.cof import COF
@@ -14,8 +18,6 @@ from pyod.models.mcd import MCD
 from pyod.models.feature_bagging import FeatureBagging
 from pyod.models.iforest import IForest
 from pyod.models.cblof import CBLOF
-from sklearn.decomposition import FactorAnalysis
-from sklearn.neighbors import KernelDensity
 from pyod.models.copod import COPOD
 from pyod.models.sod import SOD
 from pyod.models.lscp import LSCP
@@ -24,7 +26,8 @@ from pyod.models.so_gaal import SO_GAAL
 from pyod.models.mo_gaal import MO_GAAL
 from pyod.models.vae import VAE
 from pyod.models.auto_encoder import AutoEncoder
-from core.OCKRA.m_ockra import m_OCKRA
+
+from pyod.models.xgbod import XGBOD
 
 import time
 from joblib import Parallel, delayed
@@ -75,7 +78,8 @@ def runByScaler(root,scaler,models,start,counts,other_models,CPUS):
     saveResults(results, start, counts, name=f'results/{name}_{scaler}_scaler_{start}_{start + counts}')
 
 scalers = ['no','std','minmax']
-name = "Ockra"
+name = "corrections"
+#scalers = ['no']
 root = 'Unsupervised_Anamaly_Detection_csv'
 start=0
 counts=90
@@ -117,7 +121,16 @@ models = {'BRM':BRM(),
           'VAE':VAE(encoder_neurons=[8,4,2]),
           'AutoEncoder':AutoEncoder(hidden_neurons=[6,3,3,6])}
 
-models = {'OCKRA':m_OCKRA()}
+models = {'XGBOD':XGBOD(),
+          'BRM':BRM(),
+          'GM':GaussianMixture(),
+          'IF': IsolationForest(),
+          'OCSVM':OneClassSVM(),
+          'EE':EllipticEnvelope(),
+          'OCKRA':m_OCKRA(),
+          'FactorAnalysis':FactorAnalysis(),
+          'KernelDensity':KernelDensity(),
+          }
 
 Parallel(n_jobs=CPUS) \
         (delayed(runByScaler)
